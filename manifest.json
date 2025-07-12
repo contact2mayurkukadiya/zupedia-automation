@@ -1,0 +1,36 @@
+{
+    "manifest_version": 3,
+    "name": "Zupedia Task Automator",
+    "version": "2.0",
+    "description": "Automates task submission on Zupedia with a manual start button.",
+    "permissions": [
+        "storage"
+    ],
+    "host_permissions": [
+        "https://*.zupedia.com/*",
+        "https://*.zuqedia.com/*"
+    ],
+    "icons": {
+        "16": "icons/icon16.png",
+        "48": "icons/icon48.png",
+        "128": "icons/icon128.png"
+    },
+    "background": {
+        "service_worker": "background.js"
+    },
+    "action": {
+        "default_icon": "icons/icon16.png",
+        "default_popup": "popup.html",
+        "default_title": "Zupedia Automator"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "https://*.zupedia.com/*"
+            ],
+            "js": [
+                "content.js"
+            ]
+        }
+    ]
+}

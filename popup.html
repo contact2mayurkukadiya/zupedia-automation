@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Zupedia Automator</title>
+    <style>
+        body { width: 250px; font-family: sans-serif; text-align: center; padding: 10px; }
+        button { 
+            width: 100%; 
+            padding: 10px; 
+            font-size: 16px; 
+            cursor: pointer; 
+            background-color: #4CAF50; 
+            color: white; 
+            border: none;
+            border-radius: 5px;
+        }
+        button:disabled { background-color: #ccc; cursor: not-allowed; }
+        #status { margin-top: 15px; font-size: 14px; color: #555; }
+    </style>
+</head>
+<body>
+    <h3>Zupedia Task Automator</h3>
+    <button id="startButton">Start Automation</button>
+    <p id="status">Load zupedia.com to get started.</p>
+    <script src="popup.js"></script>
+</body>
+</html>
