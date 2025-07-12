@@ -1,5 +1,7 @@
 # Zupedia Task Automator
 
+![Zupedia Automator Screenshot](assets/cover.png)
+
 A Chrome extension designed to automate daily tasks on the Zupedia website. This extension will automatically log in, check your daily task progress, fetch new tasks, and submit them sequentially until your daily limit is reached.
 
 ## Features
@@ -17,11 +19,11 @@ A Chrome extension designed to automate daily tasks on the Zupedia website. This
 
 Since this is a custom-built extension, you'll need to install it manually in developer mode.
 
-1.  **Download the Extension Files:** Make sure you have all the extension files (`background.js`, `popup.html`, `popup.js`, `content.js`, `manifest.json`, etc.) in a single folder.
+1.  **Download the Extension Files:** Make sure you have all the extension files (`background.js`, `popup.html`, etc.) and the `assets` folder in a single project folder.
 2.  **Open Chrome Extensions:** Open Google Chrome, click the three-dots menu in the top-right corner, select **Extensions**, and then **Manage Extensions**.
 3.  **Enable Developer Mode:** In the top-right corner of the Extensions page, toggle the "Developer mode" switch to **On**.
 4.  **Load the Extension:** Click the **Load unpacked** button that appears on the left.
-5.  **Select the Folder:** In the file dialog, navigate to and select the folder containing your extension's files.
+5.  **Select the Folder:** In the file dialog, navigate to and select the main project folder.
 6.  **Done!** The "Zupedia Task Automator" extension should now appear in your list of extensions, and its icon will be added to your Chrome toolbar.
 
 ## How to Use
@@ -46,8 +48,8 @@ The log will inform you when the entire process is complete.
 
 **Please Note:** The following values are hardcoded directly into `background.js`. To use this for a different account or with different settings, you will need to modify the source code.
 
-*   **Username:** `phone number`
-*   **Password:** `password`
+*   **Username:** `PhoneNumber`
+*   **Password:** `Password`
 *   **Max Daily Tasks:** `20`
 *   **Submission Interval:** `15 seconds`
 

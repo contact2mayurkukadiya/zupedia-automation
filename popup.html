@@ -1,27 +1,60 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Zupedia Automator</title>
     <style>
-        body { width: 250px; font-family: sans-serif; text-align: center; padding: 10px; }
-        button { 
-            width: 100%; 
-            padding: 10px; 
-            font-size: 16px; 
-            cursor: pointer; 
-            background-color: #4CAF50; 
-            color: white; 
+        body {
+            width: 350px;
+            /* Wider for logs */
+            font-family: sans-serif;
+            text-align: center;
+            padding: 10px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
             border: none;
             border-radius: 5px;
+            margin-bottom: 10px;
         }
-        button:disabled { background-color: #ccc; cursor: not-allowed; }
-        #status { margin-top: 15px; font-size: 14px; color: #555; }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        #log-container {
+            height: 200px;
+            overflow-y: scroll;
+            /* Enable vertical scrollbar */
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: left;
+            padding: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            /* Wrap long lines */
+            word-wrap: break-word;
+        }
     </style>
 </head>
+
 <body>
     <h3>Zupedia Task Automator</h3>
     <button id="startButton">Start Automation</button>
-    <p id="status">Load zupedia.com to get started.</p>
+
+    <h4>Live Logs:</h4>
+    <pre id="log-container">Waiting to start...</pre>
+
     <script src="popup.js"></script>
 </body>
+
 </html>
