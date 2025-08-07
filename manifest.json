@@ -4,7 +4,8 @@
     "version": "2.0",
     "description": "Automates task submission on Zupedia with a manual start button.",
     "permissions": [
-        "storage"
+        "storage",
+        "notifications"
     ],
     "host_permissions": [
         "https://*.zupedia.com/*",
@@ -22,15 +23,5 @@
         "default_icon": "icons/icon16.png",
         "default_popup": "popup.html",
         "default_title": "Zupedia Automator"
-    },
-    "content_scripts": [
-        {
-            "matches": [
-                "https://*.zupedia.com/*"
-            ],
-            "js": [
-                "content.js"
-            ]
-        }
-    ]
+    }
 }

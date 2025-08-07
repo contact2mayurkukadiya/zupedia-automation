@@ -127,6 +127,7 @@ async function processSingleAccount(username, password) {
   let tasksNeeded = MAX_DAILY_TASKS - progress.completed;
   if (tasksNeeded <= 0) {
     await logToUI(`All ${MAX_DAILY_TASKS} tasks already done for today. Finished with this account.`);
+    await showCompletionNotification(username);
     return;
   }
 
@@ -166,6 +167,7 @@ async function processSingleAccount(username, password) {
   }
 
   await logToUI(`Finished processing all tasks for account ${username}.`);
+  await showCompletionNotification(username);
 }
 
 // --- MASTER AUTOMATION CONTROLLER ---
@@ -203,10 +205,13 @@ async function startMultiAccountAutomation(accountsList) {
       await logToUI(`--- Finished with Account ${i + 1}/${accountsList.length} ---`);
     }
   } catch (e) {
-    await logToUI(`A fatal error occurred in the automation controller: ${e.message}`);
+    await logToUI(`A fatal error occurred : ${e.message}`);
   } finally {
     // This block runs after all accounts are processed
     await logToUI("All accounts have been processed. Automation finished.");
+    if (accountsList.length > 0) {
+      await showFinalNotification(accountsList.length);
+    }
     await chrome.storage.local.set({ isAutomating: false });
     chrome.runtime.sendMessage({ type: 'STATE_UPDATED' }); // Final UI update
   }
@@ -230,3 +235,26 @@ chrome.runtime.onInstalled.addListener(() => {
     savedMode: false
   });
 });
+
+async function showCompletionNotification(username) {
+  const notificationId = `account-complete-${username}-${Date.now()}`;
+
+  chrome.notifications.create(notificationId, {
+    type: 'basic',
+    iconUrl: 'icons/icon48.png', // Path to an icon in your extension's folder
+    title: 'Zupedia: Account Complete',
+    message: `Finished processing all available tasks for the account: ${username}`,
+    priority: 2 // Ranges from -2 to 2. 2 is highest.
+  });
+  console.log(`Showing completion notification for account: ${username}`);
+}
+
+async function showFinalNotification(accountCount) {
+  chrome.notifications.create(`automation-complete-${Date.now()}`, {
+    type: 'basic',
+    iconUrl: 'icons/icon128.png',
+    title: 'Zupedia: All Automation Finished',
+    message: `The extension has finished processing all ${accountCount} accounts in the queue.`,
+    priority: 1
+  });
+}
