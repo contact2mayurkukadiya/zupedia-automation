@@ -3,44 +3,49 @@
 document.addEventListener('DOMContentLoaded', () => {
     const startButton = document.getElementById('startButton');
     const logContainer = document.getElementById('log-container');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
 
     /**
      * The single source of truth for updating the UI.
-     * Fetches the current state and logs from storage and renders them.
+     * Fetches the current state, logs, and saved username from storage.
      */
     async function refreshUi() {
         try {
-            const data = await chrome.storage.local.get(['isAutomating', 'sessionLogs']);
+            // Fetch username along with other state
+            const data = await chrome.storage.local.get(['isAutomating', 'sessionLogs', 'savedUsername']);
             const isAutomating = data.isAutomating || false;
             const logs = data.sessionLogs || [];
 
-            // Update button state based on whether automation is running
+            // Populate username field if it exists
+            if (data.savedUsername) {
+                usernameInput.value = data.savedUsername;
+            }
+
+            // Update button and input field state
             startButton.disabled = isAutomating;
+            usernameInput.disabled = isAutomating;
+            passwordInput.disabled = isAutomating;
 
             // Render the logs
             if (logs.length > 0) {
                 logContainer.textContent = logs.join('\n');
             } else if (isAutomating) {
-                logContainer.textContent = "Automation is starting, preparing logs...";
+                logContainer.textContent = "Automation in progress...";
             } else {
-                logContainer.textContent = "Ready. Click the 'Start Automation' button.";
+                logContainer.textContent = "Ready. Enter your credentials and click 'Start Automation'.";
             }
 
-            // Always scroll to the bottom to show the latest entries
             logContainer.scrollTop = logContainer.scrollHeight;
         } catch (error) {
             console.error("Error refreshing UI:", error);
-            logContainer.textContent = "Error loading state. Please check the extension's service worker console.";
+            logContainer.textContent = "Error loading state. Please check the extension's console.";
         }
     }
 
-    // Refresh the UI as soon as the popup opens
     refreshUi();
 
-    // Listen for update messages from the background script
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-        // When a message comes in, it's a signal that state has changed.
-        // We just need to re-render the UI from storage.
         if (request.type === 'STATE_UPDATED') {
             refreshUi();
         }
@@ -48,11 +53,32 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Handle the start button click
-    startButton.addEventListener('click', () => {
-        // Immediately disable the button and show feedback
+    startButton.addEventListener('click', async () => {
+        const username = usernameInput.value.trim();
+        const password = passwordInput.value; // Don't trim password
+
+        // Validate input
+        if (!username || !password) {
+            logContainer.textContent = "Error: Please enter both a username and password.";
+            return;
+        }
+
+        // Save username for convenience (password is not saved for security)
+        await chrome.storage.local.set({ savedUsername: username });
+
+        // Immediately disable the UI and show feedback
         startButton.disabled = true;
+        usernameInput.disabled = true;
+        passwordInput.disabled = true;
         logContainer.textContent = "Sending start command to background process...";
-        // Tell the background script to start the automation flow
-        chrome.runtime.sendMessage({ command: "start" });
+
+        // Tell the background script to start, now with credentials
+        chrome.runtime.sendMessage({
+            command: "start",
+            credentials: {
+                username: username,
+                password: password
+            }
+        });
     });
 });

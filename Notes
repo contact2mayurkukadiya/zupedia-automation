@@ -1,0 +1,214 @@
+fetch("https://zucode.zuqedia.com/api/Account/getBankCardList", {
+  "headers": {
+    "accept": "application/json, text/plain, */*",
+    "accept-language": "en-US,en;q=0.9",
+    "content-type": "application/x-www-form-urlencoded",
+    "priority": "u=1, i",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "cross-site",
+    "Referer": "https://www.zupedia.com/"
+  },
+  "body": "lang=en&token=2a29%2FqGIdrRHuSb1MUPCPWX8F90jk0mI0oQjWEY%2Br6B3JrwckEuETtAAtZamew",
+  "method": "POST"
+  "response": {
+    "code": 1,
+    "data": [
+        {
+            "id": 70111,
+            "card_no": "39226015004",
+            "bank_name": "BANK1",
+            "bank_branch_name": "",
+            "name": "Kukadiya mayurbhai rameshbhai",
+            "remark": "",
+            "cci_no": "SBIN0011006",
+            "type": 1
+        }
+    ]
+}
+});
+
+
+fetch("https://zucode.zuqedia.com/api/Transaction/getRechargeRecord", {
+  "headers": {
+    "accept": "application/json, text/plain, */*",
+    "accept-language": "en-US,en;q=0.9",
+    "content-type": "application/x-www-form-urlencoded",
+    "priority": "u=1, i",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "cross-site",
+    "Referer": "https://www.zupedia.com/"
+  },
+  "body": "state=0&page_no=1&lang=en&token=2a29%2FqGIdrRHuSb1MUPCPWX8F90jk0mI0oQjWEY%2Br6B3JrwckEuETtAAtZamew",
+  "method": "POST"
+  "response": {
+    "code": 1,
+    "data_total_nums": 1,
+    "data_total_page": 1,
+    "data_current_page": "1",
+    "info": [
+        {
+            "dan": "P1752317798U135585",
+            "adddate": "12-07-2025 16:26:38",
+            "bank_name": "Quick Payment",
+            "pay_type": "Quick Payment(1)",
+            "money": "24000.00",
+            "status": 1,
+            "remarks": null,
+            "status_desc": "Success",
+            "typedes": "充值"
+        }
+    ]
+}
+});
+
+
+fetch("https://zucode.zuqedia.com/api/Transaction/draw", {
+  "headers": {
+    "accept": "application/json, text/plain, */*",
+    "accept-language": "en-US,en;q=0.9",
+    "content-type": "application/x-www-form-urlencoded",
+    "priority": "u=1, i",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "cross-site",
+    "Referer": "https://www.zupedia.com/"
+  },
+  "body": "draw_type=bank&user_bank_id=70111&draw_money=1100&drawword=demo%401234&ifsc=&lang=en&token=2a29%2FqGIdrRHuSb1MUPCPWX8F90jk0mI0oQjWEY%2Br6B3JrwckEuETtAAtZamew",
+  "method": "POST",
+  "response": {
+    "code": 1,
+    "code_dec": "Success"
+}
+});
+
+
+fetch("https://zucode.zuqedia.com/api/user/getUserInfo", {
+  "headers": {
+    "accept": "application/json, text/plain, */*",
+    "accept-language": "en-US,en;q=0.9",
+    "content-type": "application/x-www-form-urlencoded",
+    "priority": "u=1, i",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "cross-site",
+    "Referer": "https://www.zupedia.com/"
+  },
+  "body": "lang=en&token=2a29%2FqGIdrRHuSb1MUPCPWX8F90jk0mI0oQjWEY%2Br6B3JrwckEuETtAAtZamew",
+  "method": "POST",
+  "response": {
+    "info": {
+        "draw_money": "35000",
+        "userid": 135585,
+        "uid": "7763677",
+        "username": "7878333205",
+        "balance": "1,305.00",
+        "balance_usdt": "15.35",
+        "usdt_rate": "85.00",
+        "total_balance": -8485,
+        "total_balance_lock": "24,000.00",
+        "realname": "Kukadiya mayurbhai rameshbhai",
+        "state": 1,
+        "is_mf": 0,
+        "phone": "7878333205",
+        "user_type": 2,
+        "is_realname": 1,
+        "vip_level": 4,
+        "pump": 0,
+        "number": 20,
+        "exclusive_financing_state": 0,
+        "total_withdrawals": "13,095.00",
+        "total_recharge": "24,000.00",
+        "today_earnings": "840.00",
+        "total_profit": "16,955.00",
+        "today_spread": "2,400.00",
+        "total_fund_recharge": "0.00",
+        "teamNumber": 2,
+        "useridentity": "VIP3",
+        "vip_amount_etime": "2026-07-12",
+        "stime": "2025-07-12",
+        "etime": "2026-07-12",
+        "fmt_stime": "2025-07-12",
+        "fmt_etime": "2026-07-12",
+        "day": 355,
+        "header": "head_4.png",
+        "sid": 135520,
+        "credit": 65,
+        "idcode": "7763677",
+        "is_housekeeper": 0,
+        "cun_qian_guan": 1,
+        "is_fund_password": 1,
+        "susername": null,
+        "task_wc_num": 20,
+        "task_sy_num": 0,
+        "curr_post": {
+            "post": 0,
+            "post_icon": "",
+            "name": ""
+        },
+        "post_sj_vip_cnt": 0,
+        "post_vip_cnt": 0,
+        "kf_link": "http://wa.me/+447716550263",
+        "kf_show": 1,
+        "next_post": "Intern Assistant(Full)"
+    },
+    "code": 1,
+    "token": "2a29/qGIdrRHuSb1MUPCPWX8F90jk0mI0oQjWEY+r6B3JrwckEuETtAAtZamew",
+    "messageList": [
+        {
+            "id": 517681,
+            "title": "सफेद कागज",
+            "content": "&lt;p&gt;&lt;img src=&quot;https://zupedia.com/yd_bps.png&quot; width=&quot;100%&quot;/&gt;&lt;/p&gt;",
+            "add_time": 1752317763,
+            "state": 2,
+            "uid": 135585,
+            "lang": "yd"
+        },
+        {
+            "id": 517682,
+            "title": "कर्मचारी हैंडबुक",
+            "content": "&lt;p&gt;&lt;img src=&quot;https://zupedia.com/yd_js.png&quot; width=&quot;100%&quot;/&gt;&lt;/p&gt;",
+            "add_time": 1752317763,
+            "state": 2,
+            "uid": 135585,
+            "lang": "yd"
+        }
+    ]
+}
+});
+
+
+fetch("https://zucode.zuqedia.com/api/Transaction/getRechargeRecord", {
+  "headers": {
+    "accept": "application/json, text/plain, */*",
+    "accept-language": "en-US,en;q=0.9",
+    "content-type": "application/x-www-form-urlencoded",
+    "priority": "u=1, i",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "cross-site",
+    "Referer": "https://www.zupedia.com/"
+  },
+  "body": "state=0&page_no=1&lang=en&token=2a29%2FqGIdrRHuSb1MUPCPWX8F90jk0mI0oQjWEY%2Br6B3JrwckEuETtAAtZamew",
+  "method": "POST",
+  "response": {
+    "code": 1,
+    "data_total_nums": 1,
+    "data_total_page": 1,
+    "data_current_page": "1",
+    "info": [
+        {
+            "dan": "P1752317798U135585",
+            "adddate": "12-07-2025 16:26:38",
+            "bank_name": "Quick Payment",
+            "pay_type": "Quick Payment(1)",
+            "money": "24000.00",
+            "status": 1,
+            "remarks": null,
+            "status_desc": "Success",
+            "typedes": "充值"
+        }
+    ]
+}
+});

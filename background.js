@@ -1,8 +1,9 @@
 // background.js
 
 // --- Constants ---
-const USERNAME = '7878333205';
-const PASSWORD = 'demo@1234';
+// const USERNAME = '7878333205';
+// const USERNAME = '7283918897';
+// const PASSWORD = 'demo@1234';
 const MAX_DAILY_TASKS = 20;
 const SUBMISSION_INTERVAL_MS = 15000;
 let currentToken = null;
@@ -39,10 +40,13 @@ async function makeApiCall(url, body) { /* ... no changes ... */
     return null;
   }
 }
-async function doLogin() {
+async function doLogin(username, password) {
   await logToUI("Attempting to log in...");
   const formData = new FormData();
-  formData.append('username', USERNAME); formData.append('password', PASSWORD); formData.append('lang', 'en');
+  formData.append('username', username); // Use argument
+  formData.append('password', password); // Use argument
+  // formData.append('username', USERNAME); formData.append('password', PASSWORD); 
+  formData.append('lang', 'en');
   const resp = await makeApiCall('https://zucode.zuqedia.com/api/User/Login', formData);
   if (resp?.code === 1 && resp.info?.token) {
     currentToken = resp.info.token;
@@ -105,7 +109,7 @@ async function submitOneTask(taskId) {
 }
 
 // --- Main Automation Flow (Wrapped in try...finally) ---
-async function startAutomationFlow() {
+async function startAutomationFlow(username, password) {
   const { isAutomating } = await chrome.storage.local.get('isAutomating');
   if (isAutomating) {
     logToUI("Automation is already in progress.");
@@ -118,7 +122,7 @@ async function startAutomationFlow() {
   try {
     await logToUI("Automation started.");
 
-    if (!await doLogin()) {
+    if (!await doLogin(username, password)) {
       await logToUI("Initial login failed. Halting process.");
       return;
     }
@@ -154,7 +158,7 @@ async function startAutomationFlow() {
 
       if (submitResult.reason === 'session_expired') {
         await logToUI("Session expired. Attempting to re-login...");
-        if (await doLogin()) {
+        if (await doLogin(username, password)) {
           await logToUI("Re-login successful. Retrying last task...");
           submitResult = await submitOneTask(task.task_id);
         } else {
@@ -188,12 +192,12 @@ async function startAutomationFlow() {
 // --- Event Listeners ---
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.command === "start") {
-    startAutomationFlow();
+    startAutomationFlow(request.credentials.username, request.credentials.password);
     return true;
   }
 });
 
 // Clear logs on first install for a clean slate.
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.storage.local.set({ isAutomating: false, sessionLogs: [] });
+  chrome.storage.local.set({ isAutomating: false, sessionLogs: [], savedUsername: '' });
 });

@@ -6,10 +6,31 @@
     <style>
         body {
             width: 350px;
-            /* Wider for logs */
             font-family: sans-serif;
-            text-align: center;
             padding: 10px;
+        }
+
+        h3 {
+            text-align: center;
+        }
+
+        /* NEW: Styles for input fields */
+        .input-group {
+            margin-bottom: 10px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .input-group input {
+            width: 95%;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
         }
 
         button {
@@ -21,7 +42,8 @@
             color: white;
             border: none;
             border-radius: 5px;
-            margin-bottom: 10px;
+            margin-top: 10px;
+            /* Added margin */
         }
 
         button:disabled {
@@ -32,7 +54,6 @@
         #log-container {
             height: 200px;
             overflow-y: scroll;
-            /* Enable vertical scrollbar */
             background-color: #f4f4f4;
             border: 1px solid #ddd;
             border-radius: 4px;
@@ -41,7 +62,6 @@
             font-family: 'Courier New', Courier, monospace;
             font-size: 12px;
             white-space: pre-wrap;
-            /* Wrap long lines */
             word-wrap: break-word;
         }
     </style>
@@ -49,10 +69,21 @@
 
 <body>
     <h3>Zupedia Task Automator</h3>
+
+    <!-- NEW: Username and Password fields -->
+    <div class="input-group">
+        <label for="username">Username:</label>
+        <input type="text" id="username" placeholder="e.g., 7878333205" required>
+    </div>
+    <div class="input-group">
+        <label for="password">Password:</label>
+        <input type="password" id="password" placeholder="Enter your password" required>
+    </div>
+
     <button id="startButton">Start Automation</button>
 
     <h4>Live Logs:</h4>
-    <pre id="log-container">Waiting to start...</pre>
+    <pre id="log-container">Enter your credentials and click start.</pre>
 
     <script src="popup.js"></script>
 </body>
