@@ -108,96 +108,125 @@ async function submitOneTask(taskId) {
   }
 }
 
-// --- Main Automation Flow (Wrapped in try...finally) ---
-async function startAutomationFlow(username, password) {
+
+async function processSingleAccount(username, password) {
+  // 1. LOGIN
+  if (!await doLogin(username, password)) {
+    await logToUI("Login failed for this account. Skipping to next.");
+    return; // Stop processing this account
+  }
+
+  // 2. GET PROGRESS
+  let progress = await getUserDailyProgress();
+  if (!progress.success) {
+    await logToUI("Could not get user progress. Skipping to next.");
+    return;
+  }
+
+  // 3. CHECK IF DONE
+  let tasksNeeded = MAX_DAILY_TASKS - progress.completed;
+  if (tasksNeeded <= 0) {
+    await logToUI(`All ${MAX_DAILY_TASKS} tasks already done for today. Finished with this account.`);
+    return;
+  }
+
+  await logToUI(`${progress.completed}/${MAX_DAILY_TASKS} tasks done. Need to submit ${tasksNeeded}.`);
+
+  // 4. FETCH TASKS
+  const availableTasks = await fetchTasks(tasksNeeded);
+  if (availableTasks.length === 0) {
+    await logToUI("No tasks available from API. Finished with this account.");
+    return;
+  }
+  const tasksToSubmit = availableTasks.slice(0, tasksNeeded);
+  await logToUI(`Starting submission for ${tasksToSubmit.length} tasks...`);
+
+  // 5. SUBMIT TASKS
+  for (let i = 0; i < tasksToSubmit.length; i++) {
+    const task = tasksToSubmit[i];
+    await logToUI(`Submitting task ${i + 1}/${tasksToSubmit.length} (ID: ${task.task_id})...`);
+    let submitResult = await submitOneTask(task.task_id);
+
+    // Handle session expiry by re-logging in
+    if (submitResult.reason === 'session_expired') {
+      await logToUI("Session expired. Attempting to re-login...");
+      if (await doLogin(username, password)) {
+        await logToUI("Re-login successful. Retrying last task...");
+        await submitOneTask(task.task_id); // Re-try submission
+      } else {
+        await logToUI("Re-login failed. Skipping to next account.");
+        return; // Abort this account
+      }
+    }
+
+    if (i < tasksToSubmit.length - 1) {
+      await logToUI(`Waiting ${SUBMISSION_INTERVAL_MS / 1000} seconds...`);
+      await sleep(SUBMISSION_INTERVAL_MS);
+    }
+  }
+
+  await logToUI(`Finished processing all tasks for account ${username}.`);
+}
+
+// --- MASTER AUTOMATION CONTROLLER ---
+// Manages the queue of accounts
+async function startMultiAccountAutomation(accountsList) {
   const { isAutomating } = await chrome.storage.local.get('isAutomating');
   if (isAutomating) {
     logToUI("Automation is already in progress.");
     return;
   }
 
-  // Setup state and start the process
+  // Set global automation state
   await chrome.storage.local.set({ isAutomating: true, sessionLogs: [] });
+  await logToUI(`Automation started for ${accountsList.length} account(s).`);
 
   try {
-    await logToUI("Automation started.");
-
-    if (!await doLogin(username, password)) {
-      await logToUI("Initial login failed. Halting process.");
-      return;
-    }
-
-    let progress = await getUserDailyProgress();
-    if (!progress.success) {
-      await logToUI("Could not get user progress. Halting.");
-      return;
-    }
-
-    let tasksNeeded = MAX_DAILY_TASKS - progress.completed;
-    if (tasksNeeded <= 0) {
-      await logToUI(`All ${MAX_DAILY_TASKS} tasks already done for today.`);
-      return;
-    }
-
-    await logToUI(`${progress.completed}/${MAX_DAILY_TASKS} tasks done. Need to submit ${tasksNeeded}.`);
-    const availableTasks = await fetchTasks(tasksNeeded);
-
-    if (availableTasks.length === 0) {
-      await logToUI("No tasks available from API.");
-      return;
-    }
-
-    const tasksToSubmit = availableTasks.slice(0, tasksNeeded);
-    await logToUI(`Starting submission for ${tasksToSubmit.length} tasks...`);
-
-    for (let i = 0; i < tasksToSubmit.length; i++) {
-      const task = tasksToSubmit[i];
-      await logToUI(`Submitting task ${i + 1}/${tasksToSubmit.length} (ID: ${task.task_id})...`);
-
-      let submitResult = await submitOneTask(task.task_id);
-
-      if (submitResult.reason === 'session_expired') {
-        await logToUI("Session expired. Attempting to re-login...");
-        if (await doLogin(username, password)) {
-          await logToUI("Re-login successful. Retrying last task...");
-          submitResult = await submitOneTask(task.task_id);
-        } else {
-          await logToUI("Re-login failed. Stopping automation.");
-          break;
-        }
+    // Loop through each account in the list
+    for (let i = 0; i < accountsList.length; i++) {
+      const account = accountsList[i];
+      if (!account.username || !account.password) {
+        await logToUI(`Skipping account index ${i} due to missing credentials.`);
+        continue;
       }
 
-      if (!submitResult.success) {
-        // If the submission failed for any reason (including code 0 or re-login failure),
-        // the error is already logged. We simply continue to the next task.
+      await logToUI(`--- Starting Account ${i + 1}/${accountsList.length}: ${account.username} ---`);
+
+      // Use a try/catch for each account to ensure one failure doesn't stop the whole batch
+      try {
+        await processSingleAccount(account.username, account.password);
+      } catch (e) {
+        await logToUI(`A critical error occurred while processing ${account.username}: ${e.message}`);
       }
 
-      if (i < tasksToSubmit.length - 1) {
-        await logToUI(`Waiting ${SUBMISSION_INTERVAL_MS / 1000} seconds...`);
-        await sleep(SUBMISSION_INTERVAL_MS);
-      }
+      currentToken = null; // Clear token before next account
+      await logToUI(`--- Finished with Account ${i + 1}/${accountsList.length} ---`);
     }
-  } catch (error) {
-    await logToUI(`A critical error occurred: ${error.message}`);
-    console.error("CRITICAL FLOW ERROR:", error);
+  } catch (e) {
+    await logToUI(`A fatal error occurred in the automation controller: ${e.message}`);
   } finally {
-    // This block will ALWAYS run, whether the process succeeded or failed.
-    await logToUI("Automation process finished.");
+    // This block runs after all accounts are processed
+    await logToUI("All accounts have been processed. Automation finished.");
     await chrome.storage.local.set({ isAutomating: false });
-    // Send a final update to re-enable the button in the UI
-    chrome.runtime.sendMessage({ type: 'STATE_UPDATED' });
+    chrome.runtime.sendMessage({ type: 'STATE_UPDATED' }); // Final UI update
   }
 }
 
 // --- Event Listeners ---
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.command === "start") {
-    startAutomationFlow(request.credentials.username, request.credentials.password);
-    return true;
+  if (request.command === "start" && request.accountsList) {
+    startMultiAccountAutomation(request.accountsList);
+    return true; // Indicates an async response
   }
 });
 
 // Clear logs on first install for a clean slate.
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.storage.local.set({ isAutomating: false, sessionLogs: [], savedUsername: '' });
+  chrome.storage.local.set({
+    isAutomating: false,
+    sessionLogs: [],
+    savedUsername: '',
+    savedJson: '',
+    savedMode: false
+  });
 });
