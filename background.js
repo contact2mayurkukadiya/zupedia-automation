@@ -7,6 +7,7 @@
 const MAX_DAILY_TASKS = 20;
 const SUBMISSION_INTERVAL_MS = 15000;
 let currentToken = null;
+const baseURL = 'https://app.zupedia.com'
 
 // --- Helper Functions ---
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
@@ -47,7 +48,7 @@ async function doLogin(username, password) {
   formData.append('password', password); // Use argument
   // formData.append('username', USERNAME); formData.append('password', PASSWORD); 
   formData.append('lang', 'en');
-  const resp = await makeApiCall('https://zucode.zuqedia.com/api/User/Login', formData);
+  const resp = await makeApiCall(`${baseURL}/api/User/Login`, formData);
   if (resp?.code === 1 && resp.info?.token) {
     currentToken = resp.info.token;
     await logToUI("Login successful!");
@@ -61,7 +62,7 @@ async function getUserDailyProgress() { /* ... no changes ... */
   if (!currentToken) return { success: false, reason: 'no_token_for_user_info' };
   const formData = new FormData();
   formData.append('lang', 'en'); formData.append('token', currentToken);
-  const resp = await makeApiCall('https://zucode.zuqedia.com/api/user/getUserInfo', formData);
+  const resp = await makeApiCall(`${baseURL}/api/user/getUserInfo`, formData);
   if (resp?.code === 1 && resp.info) {
     return { success: true, completed: resp.info.task_wc_num || 0 };
   }
@@ -76,7 +77,7 @@ async function fetchTasks(neededCount) { /* ... no changes ... */
     const formData = new FormData();
     formData.append('group_id', '29'); formData.append('task_level', '4'); formData.append('page_no', page);
     formData.append('is_u', '0'); formData.append('lang', 'en'); formData.append('token', currentToken);
-    const resp = await makeApiCall('https://zucode.zuqedia.com/api/task/getTaskList', formData);
+    const resp = await makeApiCall(`${baseURL}/api/task/getTaskList`, formData);
     if (resp?.code === 1 && resp.info?.length > 0) {
       allTasks.push(...resp.info);
       if (parseInt(resp.data_current_page) >= parseInt(resp.data_total_page)) hasMore = false;
@@ -93,7 +94,7 @@ async function fetchTasks(neededCount) { /* ... no changes ... */
 async function submitOneTask(taskId) {
   const formData = new FormData();
   formData.append('order_id', taskId); formData.append('lang', 'en'); formData.append('token', currentToken);
-  const resp = await makeApiCall('https://zucode.zuqedia.com/api/task/submitTask', formData);
+  const resp = await makeApiCall(`${baseURL}/api/task/submitTask`, formData);
   if (resp?.code === 1) {
     await logToUI(`> Success submitting task ID: ${taskId}`);
     return { success: true };
